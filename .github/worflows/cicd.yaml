@@ -30,6 +30,10 @@ jobs:
         docker-compose build
         docker-compose push
 
+    # - name: Update docker-compose.yaml
+    #   run: |
+    #     sed -i "s|image: your-dockerhub-username/your-image-name:.*|image: your-dockerhub-username/your-image-name:${{ env.COMMIT_HASH }}|g" docker-compose.yaml
+
     - name: Run Docker Compose
       run: docker-compose up -d
 
