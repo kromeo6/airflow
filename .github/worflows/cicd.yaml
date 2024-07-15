@@ -34,6 +34,17 @@ jobs:
     #   run: |
     #     sed -i "s|image: your-dockerhub-username/your-image-name:.*|image: your-dockerhub-username/your-image-name:${{ env.COMMIT_HASH }}|g" docker-compose.yaml
 
+
+    - name: Commit changes
+      run: |
+        git config --global user.name 'github-actions'
+        git config --global user.email 'github-actions@github.com'
+        git add docker-compose.yaml
+        git commit -m "Update docker-compose image tag to ${{ env.COMMIT_HASH }}"
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Run Docker Compose
       run: docker-compose up -d
 
