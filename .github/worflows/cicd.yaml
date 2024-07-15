@@ -1,0 +1,73 @@
+name: CI/CD for Airflow
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Login to DockerHub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Build and push Docker images
+      run: |
+        docker-compose build
+        docker-compose push
+
+    - name: Run Docker Compose
+      run: docker-compose up -d
+
+    - name: Wait for services to be healthy
+      run: |
+        for i in {1..10}; do
+          if docker-compose ps | grep 'healthy'; then
+            break
+          fi
+          sleep 10
+        done
+
+    - name: Run tests
+      run: docker-compose exec airflow-webserver pytest /path/to/your/tests
+
+    - name: Stop and remove containers
+      run: docker-compose down
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up SSH
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    - name: Deploy to production
+      run: |
+        ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_SERVER }} << 'EOF'
+          cd /path/to/your/docker-compose
+          git pull
+          ./setup_environment.sh
+          docker-compose down
+          docker-compose pull
+          docker-compose up -d
+        EOF
