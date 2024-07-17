@@ -12,7 +12,7 @@ default_args = {
     'start_date': datetime(2023, 1, 1),
     'retries': 1,
 }
-
+# new line
 with DAG(
     'example_dag_test',
     default_args=default_args,
