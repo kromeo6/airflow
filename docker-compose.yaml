@@ -83,7 +83,7 @@ x-airflow-common:
     # redis:
     #   condition: service_healthy
     postgres:
-      condition: service_health
+      condition: service_healthy
 
 services:
   postgres:
