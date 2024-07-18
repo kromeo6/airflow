@@ -4,8 +4,8 @@ from airflow.operators.python_operator import PythonOperator
 
 # Define a function to print a message
 def print_hello():
-    print("Hello from Airflow. added new")
-    print("new line from local.")
+    print("H")
+    print("n")
 
 # Define the default arguments
 default_args = {
